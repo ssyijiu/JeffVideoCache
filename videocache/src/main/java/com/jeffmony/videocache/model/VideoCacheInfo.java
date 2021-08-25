@@ -10,6 +10,7 @@ public class VideoCacheInfo implements Serializable {
     private int mVideoType;                        //视频类型
     private long mCachedSize;                      //已经缓存的大小，M3U8文件忽略这个变量
     private long mTotalSize;                       //总大小
+    private long mRangeSize;                       //第一次 Range 请求的大小
     private int mCachedTs;                         //已经缓存的ts个数
     private int mTotalTs;                          //总的ts个数
     private String mMd5;                           //videourl对应的md5
@@ -58,6 +59,14 @@ public class VideoCacheInfo implements Serializable {
 
     public long getTotalSize() {
         return mTotalSize;
+    }
+
+    public long getRangeSize() {
+        return mRangeSize;
+    }
+
+    public void setRangeSize(long mRangeSize) {
+        this.mRangeSize = mRangeSize;
     }
 
     public void setCachedTs(int cachedTs) {

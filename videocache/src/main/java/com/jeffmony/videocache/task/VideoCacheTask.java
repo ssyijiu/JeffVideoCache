@@ -23,6 +23,7 @@ public abstract class VideoCacheTask {
     protected volatile long mCachedSize;      //当前缓存大小
     protected volatile long mLastCachedSize;  //上一次缓存大小
     protected long mTotalSize;
+    protected long mRangeSize;
     protected long mLastInvokeTime;
     protected float mPercent = 0.0f;
     protected float mSpeed = 0.0f;
@@ -36,6 +37,7 @@ public abstract class VideoCacheTask {
         }
         mCachedSize = cacheInfo.getCachedSize();
         mTotalSize = cacheInfo.getTotalSize();
+        mRangeSize = cacheInfo.getRangeSize();
         mSaveDir = new File(cacheInfo.getSavePath());
         if (!mSaveDir.exists()) {
             mSaveDir.mkdir();
