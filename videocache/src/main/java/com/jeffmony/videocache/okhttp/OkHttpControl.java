@@ -60,8 +60,9 @@ public class OkHttpControl {
 
     /**
      * 是否是重定向的请求
-     *
+     * <p>
      * 发生重定向请求之后需要重新修改Location中的url的
+     *
      * @return
      */
     private boolean shouldRedirect() {
@@ -78,15 +79,39 @@ public class OkHttpControl {
         return false;
     }
 
-    public String getFinalUrl() { return mUrl; }
+    public String getFinalUrl() {
+        return mUrl;
+    }
 
-    public int getRedirectCount() { return mRedirectCount; }
+    public int getRedirectCount() {
+        return mRedirectCount;
+    }
 
     /**
      * 获取资源的contentLength
+     *
      * @return
      */
     public long getContentLength() {
+        if (mResponse == null) {
+            return -1;
+        }
+        if (mResponse.code() == 200) {
+            String contentLength = mResponse.header("content-length");
+            if (TextUtils.isEmpty(contentLength)) {
+                return -1;
+            }
+            return Long.parseLong(contentLength);
+        }
+
+        if (mResponse.code() == 206) {
+            return parseContentLengthFromContentRange();
+        }
+
+        return -1;
+    }
+
+    public long getRangeLength() {
         if (mResponse == null) {
             return -1;
         }
@@ -102,6 +127,7 @@ public class OkHttpControl {
 
     /**
      * 获取请求资源的contentType
+     *
      * @return
      */
     public String getContentType() {
@@ -138,7 +164,7 @@ public class OkHttpControl {
             return -1;
         }
 
-        if (mResponse.code() == 200 || mResponse.code() ==206) {
+        if (mResponse.code() == 200 || mResponse.code() == 206) {
             String contentRange = mResponse.header("Content-Range");
             if (TextUtils.isEmpty(contentRange)) {
                 return -1;

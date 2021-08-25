@@ -112,6 +112,21 @@ public class OkHttpManager {
         }
     }
 
+    public long getRangeLength(String url, Map<String, String> headers) throws VideoCacheException {
+        OkHttpControl control;
+        if (mHttpControlMap.containsKey(url)) {
+            control = mHttpControlMap.get(url);
+            if (control == null) {
+                control = createOkHttpControl(url, headers, true);
+                mHttpControlMap.put(url, control);
+            }
+        } else {
+            control = createOkHttpControl(url, headers, true);
+            mHttpControlMap.put(url, control);
+        }
+        return control.getRangeLength();
+    }
+
     public InputStream getResponseBody(String url, Map<String, String> headers, @NonNull IFetchResponseListener listener) throws VideoCacheException {
         OkHttpControl control = createOkHttpControl(url, headers, false);
         mHttpControlMap.put(url, control);

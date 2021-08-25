@@ -248,11 +248,14 @@ public class VideoInfoParseManager {
     private void parseNonM3U8VideoInfoByOkHttp(VideoCacheInfo cacheInfo) {
         cacheInfo.setVideoType(VideoType.OTHER_TYPE);
         long contentLength;
+        long rangeLength;
 
         try {
             contentLength = OkHttpManager.getInstance().getContentLength(cacheInfo.getVideoUrl(), mHeaders);
+            rangeLength = OkHttpManager.getInstance().getRangeLength(cacheInfo.getVideoUrl(), mHeaders);
             if (contentLength > 0) {
                 cacheInfo.setTotalSize(contentLength);
+                cacheInfo.setRangeSize(rangeLength);
                 mListener.onNonM3U8ParsedFinished(cacheInfo);
             } else {
                 mListener.onNonM3U8ParsedFailed(new VideoCacheException(""), cacheInfo);
