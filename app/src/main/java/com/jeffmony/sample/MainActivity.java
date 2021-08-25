@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.ArrayMap;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -11,10 +13,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.jeffmony.videocache.utils.ProxyCacheUtils;
+
+import java.util.Map;
+
 public class MainActivity extends Activity {
 
     private EditText mVideoUrlEditText;
     private Button mVideoPlayBtn;
+    private Button mVideoCacheBtn;
     private CheckBox mLocalProxyBox;
     private CheckBox mUseOkHttpBox;
 
@@ -32,6 +39,7 @@ public class MainActivity extends Activity {
 
         mVideoUrlEditText = findViewById(R.id.video_url_edit_text);
         mVideoPlayBtn = findViewById(R.id.video_play_btn);
+        mVideoCacheBtn = findViewById(R.id.video_cache_btn);
         mLocalProxyBox = findViewById(R.id.local_proxy_box);
         mUseOkHttpBox = findViewById(R.id.okhttp_box);
         mRadioGroup = findViewById(R.id.player_group);
@@ -48,9 +56,8 @@ public class MainActivity extends Activity {
                 mIsIjkSelected = mIjkBtn.isChecked();
             }
         });
-
+        String videoUrl = mVideoUrlEditText.getText().toString();
         mVideoPlayBtn.setOnClickListener(view -> {
-            String videoUrl = mVideoUrlEditText.getText().toString();
             if (TextUtils.isEmpty(videoUrl)) {
                 Toast.makeText(MainActivity.this, "The video url is empty", Toast.LENGTH_LONG).show();
             } else {
@@ -66,6 +73,23 @@ public class MainActivity extends Activity {
                 }
                 intent.putExtra("player_type", type);
                 startActivity(intent);
+            }
+        });
+
+        mVideoCacheBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (TextUtils.isEmpty(videoUrl)) {
+                    Toast.makeText(MainActivity.this, "The video url is empty", Toast.LENGTH_LONG).show();
+                } else {
+                    ProxyCacheUtils.getConfig().setUseOkHttp(mUseOkHttpBox.isChecked());
+                    SimpleCacheManager cacheManager = new SimpleCacheManager(videoUrl);
+                    Map<String, String> headers = new ArrayMap<>();
+                    // 在播放之前，缓存 100kb
+                    // 场景就是抖音播放当前视频的时候，会缓存下一个视频
+                    headers.put("Range", "bytes=0-102400");
+                    cacheManager.startCache(headers, null);
+                }
             }
         });
     }

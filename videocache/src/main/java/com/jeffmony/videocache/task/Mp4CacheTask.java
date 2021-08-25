@@ -83,7 +83,11 @@ public class Mp4CacheTask extends VideoCacheTask {
      */
     public VideoRange getRequestRange(long position) {
         if (mVideoRangeMap.size() == 0) {
-            return new VideoRange(0, mTotalSize);
+            if (mRangeSize > 0) {
+                return new VideoRange(0, mRangeSize);
+            } else {
+                return new VideoRange(0, mTotalSize);
+            }
         } else {
             long start = -1;
             long end = -1;
@@ -263,9 +267,15 @@ public class Mp4CacheTask extends VideoCacheTask {
             if (startPosition == mTotalSize) {
                 //说明已经缓存好,但是整视频中间还有一些洞,但是不影响,可以忽略
             } else {
-                //开启下一段视频分片的缓存
-                VideoRange requestRange = getRequestRange(startPosition);
-                startVideoCacheThread(requestRange);
+                // rangeSize 大于 0，说明就是要下载到 rangeSize，不下载后面的视频
+                if (mRangeSize > 0) {
+                    mRangeSize = -1;
+                }
+                // 开启下一段视频分片的缓存
+                else {
+                    VideoRange requestRange = getRequestRange(startPosition);
+                    startVideoCacheThread(requestRange);
+                }
             }
         }
 
